@@ -35,6 +35,8 @@ sudo mkdir /media/mycd
 sudo mount /dev/sr0 /media/mycd
 sudo /media/mycd/VBoxLinuxAdditions.run
 
+sudo umount /media/mycd
+
 name=`whoami`
 
 echo $name
@@ -54,21 +56,25 @@ git config --global user.name "Alexey Oknov"
 git config --global user.email "pitrider@mail.ru"
 
 if [ ! -d /www ]; then 
-	mkdir /www
+	sudo mkdir /www
 fi
+
 sudo chown $name:$name -R /www
+sudo chmod 775 -R /www
+
 cd /www
 
 git clone git@github.com:alexeyoknov/phpdev-01.git
 
 sudo chown www-data:www-data -R /www
 
-sudo ln -s /www/phpdev-01/conf/pma.conf /etc/nginx/sites-enabled/pma
-sudo ln -s /www/phpdev-01/conf/local.nginx /etc/nginx/sites-enabled/phpdev
+sudo ln -sf /www/phpdev-01/conf/pma.conf /etc/nginx/sites-enabled/pma
+sudo ln -sf /www/phpdev-01/conf/local.nginx /etc/nginx/sites-enabled/phpdev
 
-echo "\n\n###" | tee -a /etc/hosts
-echo "127.0.0.1\tpma.my" | sudo tee -a /etc/hosts
-echo "127.0.0.1\tdev01.my" | sudo tee -a /etc/hosts
+sudo service nginx restart
+
+echo "127.0.0.1 pma.my" | sudo tee -a /etc/hosts
+echo "127.0.0.1 dev01.my" | sudo tee -a /etc/hosts
 
 echo "Installing VSCode"
 
