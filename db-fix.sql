@@ -6,9 +6,12 @@ SET
 WHERE
     user = 'root';
 
+/*
 CREATE DATABASE phpmyadmin;
 SHOW DATABASES LIKE '%phpmyadmin%';
+*/
 
+/*
 CREATE 
     USER 'test1'@'localhost'
     IDENTIFIED BY 'test1password';
@@ -16,3 +19,5 @@ CREATE
 GRANT ALL PRIVILEGES ON phpmyadmin.* TO 'test1'@'localhost';
 
 SELECT user, host FROM mysql.user WHERE user='test1' AND host='localhost';
+
+*/

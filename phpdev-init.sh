@@ -1,8 +1,17 @@
-#!/bin/zsh
+#!/bin/bash
 
-echo "Installing mysql/php/php-fpm/git/curl/zsh"
-apt-get install -y mysql-server
-apt-get install -y php-fpm phpmyadmin git curl zsh
+if [ `id -g` -gt 0 ]; then
+    echo "Run this script as root"
+    exit
+fi
+
+apt-get update && apt-get -y upgrade 
+
+echo "Installing base utilities"
+apt install -y gcc make perl git curl htop mc zsh 
+
+echo "Installing web stack"
+apt-get install -y nginx mysql-server php-fpm php-intl php-mysql
 
 echo "Fixing mysql"
 if [ -f ./db-fix.sql ]; then
@@ -10,8 +19,24 @@ if [ -f ./db-fix.sql ]; then
     systemctl restart mysql.service
 fi
 
+echo "Installing PMA"
+echo "phpmyadmin phpmyadmin/dbconfig-install boolean true" | debconf-set-selections
+echo "phpmyadmin phpmyadmin/app-password-confirm password $APP_PASS" | debconf-set-selections
+echo "phpmyadmin phpmyadmin/mysql/admin-pass password $ROOT_PASS" | debconf-set-selections
+echo "phpmyadmin phpmyadmin/mysql/app-pass password $APP_DB_PASS" | debconf-set-selections
+echo "phpmyadmin phpmyadmin/reconfigure-webserver multiselect" | debconf-set-selections
+apt install -y phpmyadmin
+
 echo "Fixing phpmyadmin"
+cp /etc/phpmyadmin/config.inc.php /etc/phpmyadmin/config.inc.php.old
 sed -i '/AllowNoPassword/s/\/\///' /etc/phpmyadmin/config.inc.php
+
+ln -s /www/phpdev-01/conf/pma.conf /etc/nginx/sites-enabled/pma
+ln -s /www/phpdev-01/conf/local.nginx /etc/nginx/sites-enabled/phpdev
+
+echo "\n\n###" | tee -a /etc/hosts
+echo "127.0.0.1\tpma.my" | tee -a /etc/hosts
+echo "127.0.0.1\tdev01.my" | tee -a /etc/hosts
 
 echo "Installing VSCode"
 

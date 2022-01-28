@@ -5,7 +5,7 @@ server {
     access_log          /var/log/nginx/dev01.access.log;
     error_log           /var/log/nginx/dev01.error.log;
 
-    root                /var/www/phpdev-01;
+    root                /www/phpdev-01;
     index               index.php;
 
     charset             utf-8;
