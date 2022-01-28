@@ -49,3 +49,4 @@ if [ -z "$b" ]; then
 	echo "127.0.0.1 dev01.my" | sudo tee -a /etc/hosts
 fi
 
+

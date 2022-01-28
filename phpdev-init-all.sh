@@ -13,12 +13,6 @@ sudo apt install -y gcc make perl git curl htop mc zsh
 echo "Installing web stack"
 sudo apt-get install -y nginx mysql-server php-fpm php-intl php-mysql
 
-echo "Fixing mysql"
-if [ -f ./db-fix.sql ]; then
-    sudo mysql -u root < ./db-fix.sql
-    systemctl restart mysql.service
-fi
-
 echo "Installing PMA"
 echo "phpmyadmin phpmyadmin/dbconfig-install boolean true" | sudo debconf-set-selections
 echo "phpmyadmin phpmyadmin/app-password-confirm password $APP_PASS" | sudo debconf-set-selections
@@ -30,6 +24,10 @@ sudo apt install -y phpmyadmin
 echo "Fixing phpmyadmin"
 sudo cp /etc/phpmyadmin/config.inc.php /etc/phpmyadmin/config.inc.php.old
 sudo sed -i '/AllowNoPassword/s/\/\///' /etc/phpmyadmin/config.inc.php
+
+echo "Fixing mysql"
+sudo mysql -u root -e "UPDATE mysql.user SET plugin = 'mysql_native_password', authentication_string  = '' WHERE user = 'root';"
+sudo service mysql restart
 
 sudo mkdir /media/mycd
 sudo mount /dev/sr0 /media/mycd
