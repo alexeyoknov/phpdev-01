@@ -21,23 +21,6 @@ echo "Git config"
 git config --global user.name "Alexey Oknov"
 git config --global user.email "pitrider@mail.ru"
 
-if [ ! -d /www ]; then 
-	sudo mkdir /www
-fi
-
-sudo chown $name:$name -R /www
-sudo chmod 775 -R /www
-
-cd /www
-
-git clone git@github.com:alexeyoknov/phpdev-01.git
-
-sudo chown www-data:www-data -R /www
-
-sudo ln -sf /www/phpdev-01/conf/pma.conf /etc/nginx/sites-enabled/pma
-sudo ln -sf /www/phpdev-01/conf/local.nginx /etc/nginx/sites-enabled/phpdev
-
-sudo service nginx restart
 
 b=`fgrep pma.my /etc/hosts`
 if [ -z "$b" ]; then 

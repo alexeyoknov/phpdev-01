@@ -38,7 +38,26 @@ sudo umount /media/mycd
 echo "Fixing some rights"
 sudo usermod -aG www-data,vboxsf $name
 #sudo usermod -aG vboxsf $name
-sudo chmod g+w -R /www
+#sudo chmod 775 -R /www
+
+if [ ! -d /www ]; then 
+	sudo mkdir /www
+fi
+
+if [ -d /www ]; then
+    cd /www
+    git clone https://github.com/alexeyoknov/phpdev-01.git
+
+    cd ./phpdev-01
+    git remote set-url origin git@github.com:alexeyoknov/phpdev-01.git
+
+    sudo chmod g+w -R /www
+
+    sudo ln -sf /www/phpdev-01/conf/pma.conf /etc/nginx/sites-enabled/pma
+    sudo ln -sf /www/phpdev-01/conf/local.nginx /etc/nginx/sites-enabled/phpdev
+
+    sudo service nginx restart
+fi
 
 echo "Installing VSCode"
 
@@ -54,5 +73,5 @@ sudo apt install -y code
 
 
 echo "Installing oh-my-zsh"
-sudo sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
