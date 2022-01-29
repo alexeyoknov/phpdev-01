@@ -52,7 +52,7 @@ if [ -d /www ]; then
     git remote set-url origin git@github.com:alexeyoknov/phpdev-01.git
 
     sudo chmod g+w -R /www
-    sudo chown www-data:www-data /www
+    sudo chown www-data:www-data -R /www
 
     sudo ln -sf /www/phpdev-01/conf/pma.conf /etc/nginx/sites-enabled/pma
     sudo ln -sf /www/phpdev-01/conf/local.nginx /etc/nginx/sites-enabled/phpdev
