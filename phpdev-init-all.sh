@@ -1,6 +1,11 @@
 #!/bin/bash
 
-if [ `id -g` -eq 0 ]; then
+GIT_HTTPS="https://github.com/alexeyoknov/phpdev-01.git"
+GIT_SSH="git@github.com:alexeyoknov/phpdev-01.git"
+GIT_USER_NAME="Alexey Oknov"
+GIT_USER_EMAIl="pitrider@mail.ru"
+
+if [ $(id -g) -eq 0 ]; then
     echo "Run this script as user"
     exit
 fi
@@ -8,7 +13,7 @@ fi
 sudo apt-get update && apt-get -y upgrade 
 
 echo "Installing base utilities"
-sudo apt install -y gcc make perl git curl htop mc zsh 
+sudo apt install -y gcc make perl ssh git curl htop mc zsh
 
 echo "Installing web stack"
 sudo apt-get install -y nginx mysql-server php-fpm php-intl php-mysql
@@ -31,31 +36,40 @@ sudo service mysql restart
 
 sudo mkdir /media/mycd
 sudo mount /dev/sr0 /media/mycd
-sudo /media/mycd/VBoxLinuxAdditions.run
+
+if [ -f /media/mycd/VBoxLinuxAdditions.run ]; then
+    sudo /media/mycd/VBoxLinuxAdditions.run
+fi
 
 sudo umount /media/mycd
 
 echo "Fixing some rights"
-sudo usermod -aG www-data,vboxsf $name
-#sudo usermod -aG vboxsf $name
-#sudo chmod 775 -R /www
 
+name=""
+echo "Your name is ${name}"
+if [ -z $(id -nG | grep www-data) ]; then
+
+    name=$(whoami)
+    sudo usermod -aG www-data,vboxsf ${name}
+
+fi
 if [ ! -d /www ]; then 
 	sudo mkdir /www
 fi
 
 if [ -d /www ]; then
+    chmod 777 -R /www
     cd /www
-    git clone https://github.com/alexeyoknov/phpdev-01.git
+    git clone ${GIT_HTTPS}
 
     cd ./phpdev-01
-    git remote set-url origin git@github.com:alexeyoknov/phpdev-01.git
+    git remote set-url origin ${GIT_SSH}
 
-    sudo chmod g+w -R /www
+    sudo chmod g+w,o-w -R /www
     sudo chown www-data:www-data -R /www
 
-    sudo ln -sf /www/phpdev-01/conf/pma.conf /etc/nginx/sites-enabled/pma
-    sudo ln -sf /www/phpdev-01/conf/local.nginx /etc/nginx/sites-enabled/phpdev
+    sudo ln -sf /www/phpdev-01/conf/pma.conf /etc/nginx/sites-enabled/pma.conf
+    sudo ln -sf /www/phpdev-01/conf/local.nginx /etc/nginx/sites-enabled/phpdev.conf
 
     sudo service nginx reload
 fi
@@ -68,17 +82,12 @@ sudo install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.
 sudo sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list'
 sudo rm -f packages.microsoft.gpg
 
-sudo apt install -y apt-transport-https
 sudo apt update
 sudo apt install -y code
 
 
 echo "Installing oh-my-zsh"
 sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
-name=`whoami`
-
-echo $name
 
 echo "Generating ssh key for git"
 if [ ! -f ~/.ssh/id_rsa.pub ]; then
@@ -90,17 +99,23 @@ cat ~/.ssh/id_rsa.pub
 
 # Git config
 echo "Git global config"
-git config --global user.name "Alexey Oknov"
-git config --global user.email "pitrider@mail.ru"
+git config --global user.name "${GIT_USER_NAME}"
+git config --global user.email "${GIT_USER_EMAIl}"
 
 echo "Adding pma & dev01 to /etc/hosts"
-b=`fgrep pma.my /etc/hosts`
+b=$(grep -F pma.my /etc/hosts)
 if [ -z "$b" ]; then 
 	echo "127.0.0.1 pma.my" | sudo tee -a /etc/hosts
 fi
 
-b=`fgrep dev01.my /etc/hosts`
+b=$(grep -F dev01.my /etc/hosts)
 if [ -z "$b" ]; then 
 	echo "127.0.0.1 dev01.my" | sudo tee -a /etc/hosts
 fi
+
+if [ -n "${name}" ]; then
+    echo "Need relogin"
+    #sudo pkill -KILL -u ${name}
+fi
+echo "If new VirtualBox modules has been installed, please, reboot your system"
 
