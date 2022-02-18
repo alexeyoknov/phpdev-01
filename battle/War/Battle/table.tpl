@@ -17,8 +17,8 @@
     </tr>
     <tr>
         <th>Army units:</th>
-        <td>%%army_units1%%</td>
-        <td>%%army_units2%%</td>
+        <td>%%armyUnits1%%</td>
+        <td>%%armyUnits2%%</td>
     </tr>
     <tr>
         <th>Health after %%Hits%% hits:</th>
